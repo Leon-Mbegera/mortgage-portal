@@ -25,3 +25,8 @@ logging:
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
+
+jwt:
+  secret: "dev-only-change-me-please-use-a-long-random-base64-secret-1234567890"
+  expiration-ms: 86400000
+
