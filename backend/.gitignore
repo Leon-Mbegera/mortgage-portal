@@ -33,3 +33,11 @@ build/
 .vscode/
 
 CLAUDE.md
+
+cat >> .gitignore << 'EOF'
+
+### Environment-specific config (do not commit) ###
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml
+EOF
+
