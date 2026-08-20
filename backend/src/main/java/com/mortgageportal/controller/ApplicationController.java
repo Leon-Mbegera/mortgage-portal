@@ -9,9 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -27,5 +30,10 @@ public class ApplicationController {
   @PostMapping
   public ResponseEntity<ApplicationResponse> submit(@Valid @RequestBody ApplicationRequest request, @AuthenticationPrincipal UserPrincipal principal) {
     return ResponseEntity.status(HttpStatus.CREATED).body(applicationService.submit(request, principal.getUser()));
+  }
+
+  @GetMapping
+  public ResponseEntity<List<ApplicationResponse>> list(@AuthenticationPrincipal UserPrincipal principal) {
+    return ResponseEntity.ok(applicationService.listForCurrentUser(principal.getUser()));
   }
 }
