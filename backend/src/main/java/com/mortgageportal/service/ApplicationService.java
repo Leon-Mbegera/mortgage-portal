@@ -9,6 +9,8 @@ import com.mortgageportal.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class ApplicationService {
 
@@ -30,6 +32,15 @@ public class ApplicationService {
     applicationRepository.save(application);
 
     return toResponse(application);
+  }
+
+  @Transactional(readOnly = true)
+  public List<ApplicationResponse> listForCurrentUser(User currentUser) {
+    List<Application> applications = currentUser.getRole().getName().equals("ADMIN")
+                  ? applicationRepository.findAll()
+                  : applicationRepository.findByApplicantId(currentUser.getId());
+
+    return applications.stream().map(this::toResponse).toList();
   }
 
   private ApplicationResponse toResponse(Application application) {
