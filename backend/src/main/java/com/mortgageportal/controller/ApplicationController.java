@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -35,5 +36,10 @@ public class ApplicationController {
   @GetMapping
   public ResponseEntity<List<ApplicationResponse>> list(@AuthenticationPrincipal UserPrincipal principal) {
     return ResponseEntity.ok(applicationService.listForCurrentUser(principal.getUser()));
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<ApplicationResponse> getById(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+    return ResponseEntity.ok(applicationService.getById(id, principal.getUser()));
   }
 }
