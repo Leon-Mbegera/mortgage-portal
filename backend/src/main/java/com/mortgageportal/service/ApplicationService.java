@@ -8,13 +8,15 @@ import com.mortgageportal.entity.ApplicationStatus;
 import com.mortgageportal.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
 public class ApplicationService {
 
-  public final ApplicationRepository applicationRepository;
+  private final ApplicationRepository applicationRepository;
 
   public ApplicationService(ApplicationRepository applicationRepository) {
     this.applicationRepository = applicationRepository;
@@ -41,6 +43,21 @@ public class ApplicationService {
                   : applicationRepository.findByApplicantId(currentUser.getId());
 
     return applications.stream().map(this::toResponse).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public ApplicationResponse getById(Long id, User currentUser) {
+    Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
+    boolean isOwner = application.getApplicant().getId().equals(currentUser.getId());
+    boolean isAdmin = currentUser.getRole().getName().equals("ADMIN");
+
+    if (!isOwner && !isAdmin) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to access this application");
+    }
+
+    return toResponse(application);
   }
 
   private ApplicationResponse toResponse(Application application) {
