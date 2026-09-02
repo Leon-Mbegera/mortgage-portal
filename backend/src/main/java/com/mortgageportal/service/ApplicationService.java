@@ -1,6 +1,7 @@
 package com.mortgageportal.service;
 
 import com.mortgageportal.dto.application.ApplicationRequest;
+import com.mortgageportal.dto.application.UpdateStatusRequest;
 import com.mortgageportal.dto.application.ApplicationResponse;
 import com.mortgageportal.repository.ApplicationRepository;
 import com.mortgageportal.entity.Application;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -59,6 +61,21 @@ public class ApplicationService {
 
     return toResponse(application);
   }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public ApplicationResponse updateStatus(Long id, UpdateStatusRequest request) {
+    Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
+    if (request.status() == ApplicationStatus.PENDING) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must be APPROVED or REJECTED");
+    }
+
+    application.setStatus(request.status());
+    return toResponse(application);
+  }
+
 
   private ApplicationResponse toResponse(Application application) {
     return new ApplicationResponse(
