@@ -1,6 +1,7 @@
 package com.mortgageportal.controller;
 
 import com.mortgageportal.dto.application.ApplicationRequest;
+import com.mortgageportal.dto.application.UpdateStatusRequest;
 import com.mortgageportal.dto.application.ApplicationResponse;
 import com.mortgageportal.security.UserPrincipal;
 import com.mortgageportal.service.ApplicationService;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +43,10 @@ public class ApplicationController {
   @GetMapping("/{id}")
   public ResponseEntity<ApplicationResponse> getById(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
     return ResponseEntity.ok(applicationService.getById(id, principal.getUser()));
+  }
+
+  @PatchMapping("/{id}/status")
+  public ResponseEntity<ApplicationResponse> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
+    return ResponseEntity.ok(applicationService.updateStatus(id, request));
   }
 }
