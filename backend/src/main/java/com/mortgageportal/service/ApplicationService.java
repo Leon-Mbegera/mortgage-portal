@@ -3,6 +3,8 @@ package com.mortgageportal.service;
 import com.mortgageportal.dto.application.ApplicationRequest;
 import com.mortgageportal.dto.application.UpdateStatusRequest;
 import com.mortgageportal.dto.application.ApplicationResponse;
+import com.mortgageportal.dto.event.ApplicationEvent;
+import com.mortgageportal.event.ApplicationEventPublisher;
 import com.mortgageportal.repository.ApplicationRepository;
 import com.mortgageportal.entity.Application;
 import com.mortgageportal.entity.ApplicationStatus;
@@ -14,14 +16,17 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.time.OffsetDateTime;
 
 @Service
 public class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
-  public ApplicationService(ApplicationRepository applicationRepository) {
+  public ApplicationService(ApplicationRepository applicationRepository, ApplicationEventPublisher eventPublisher) {
     this.applicationRepository = applicationRepository;
+    this.eventPublisher = eventPublisher;
   }
 
   @Transactional
@@ -34,6 +39,14 @@ public class ApplicationService {
       .build();
 
     applicationRepository.save(application);
+
+    eventPublisher.publish(new ApplicationEvent(
+      "CREATED",
+      application.getId(),
+      applicant.getId(),
+      application.getStatus(),
+      OffsetDateTime.now()
+    ));
 
     return toResponse(application);
   }
